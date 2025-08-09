@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora JS Orientada a Objetos</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2em; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f9; }
+        .container { max-width: 400px; padding: 2em; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 0.75em; margin-top: 0.5em; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 1em; }
+        button:hover { background-color: #0056b3; }
+        .resultado { margin-top: 1.5em; padding: 1em; background-color: #e9ecef; border-radius: 4px; text-align: center; font-size: 1.2em; }
+        .error { color: red; margin-top: 1em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Calculadora Básica con JS</h2>
+    
+    <form id="calculadoraForm">
+        <label for="numero1">Primer número:</label>
+        <input type="number" step="any" id="numero1" required>
+
+        <label for="numero2">Segundo número:</label>
+        <input type="number" step="any" id="numero2" required>
+        
+        <label for="operacion">Operación:</label>
+        <select id="operacion" required>
+            <option value="suma">Suma</option>
+            <option value="resta">Resta</option>
+            <option value="multiplicacion">Multiplicación</option>
+            <option value="division">División</option>
+        </select>
+        
+        <button type="button" id="calcularBtn">Calcular</button>
+    </form>
+    
+    <div id="resultado"></div>
+</div>
+
+<script>
+    // --- Clases e Interfaces ---
+
+    class Operable {
+        calcular(a, b) {
+            throw new Error("El método calcular() debe ser implementado.");
+        }
+    }
+    
+    class Operacion {
+        constructor(nombre) {
+            if (new.target === Operacion) {
+                throw new Error("No se puede instanciar una clase abstracta.");
+            }
+            this.nombre = nombre;
+        }
+        getNombre() {
+            return this.nombre;
+        }
+    }
+
+    class Suma extends Operacion {
+        constructor() { super("Suma"); }
+        calcular(a, b) { return a + b; }
+    }
+
+    class Resta extends Operacion {
+        constructor() { super("Resta"); }
+        calcular(a, b) { return a - b; }
+    }
+    
+    class Multiplicacion extends Operacion {
+        constructor() { super("Multiplicación"); }
+        calcular(a, b) { return a * b; }
+    }
+    
+    class Division extends Operacion {
+        constructor() { super("División"); }
+        calcular(a, b) { 
+            if (b === 0) {
+                throw new Error("División por cero no es permitida.");
+            }
+            return a / b; 
+        }
+    }
+    
+    class Calculadora {
+        constructor(operacion) {
+            if (typeof operacion.calcular !== 'function') {
+                throw new Error("El objeto 'operacion' debe tener un método 'calcular'.");
+            }
+            this.operacion = operacion;
+        }
+
+        realizarOperacion(a, b) {
+            return this.operacion.calcular(a, b);
+        }
+    }
+
+
+    const calcularBtn = document.getElementById('calcularBtn');
+
+
+calcularBtn.addEventListener('click', function(event) {
+    
+    const numero1 = parseFloat(document.getElementById('numero1').value);
+    const numero2 = parseFloat(document.getElementById('numero2').value);
+    const operacionElegida = document.getElementById('operacion').value;
+    
+    try {
+        let calculadora;
+
+        switch(operacionElegida) {
+            case 'suma':
+                calculadora = new Calculadora(new Suma());
+                break;
+            case 'resta':
+                calculadora = new Calculadora(new Resta());
+                break;
+            case 'multiplicacion':
+                calculadora = new Calculadora(new Multiplicacion());
+                break;
+            case 'division':
+                calculadora = new Calculadora(new Division());
+                break;
+            default:
+                throw new Error("Operación no válida.");
+        }
+
+        const resultado = calculadora.realizarOperacion(numero1, numero2);
+        alert(`El resultado de la ${operacionElegida} es: ${resultado}`);
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+});
+
+</script>
+
+</body>
+</html>
